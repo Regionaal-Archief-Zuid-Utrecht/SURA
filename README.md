@@ -1,6 +1,6 @@
-# SURA - Secure URL Access Service
+# SURA - Secure URL Return API
 
-A FastAPI-based service that provides secure URL access through JWT tokens. The service can operate in both public and private modes, with token generation available in public mode.
+A FastAPI-based service that provides secure URL manipulation, for example through JWT tokens. The service can operate in both public and private modes, with token generation available in public mode.
 
 ## Features
 
@@ -10,6 +10,8 @@ A FastAPI-based service that provides secure URL access through JWT tokens. The 
 - **Configurable Endpoints**: Support for multiple endpoints with different configurations
 - **Flexible Token Duration**: Configurable token expiration times
 - **Optional IP Validation**: Can include IP validation in tokens if required
+- **S3 Proxy Mode**: In private mode, can proxy requests to S3 buckets
+- **Configurable Port**: Server port can be configured via command line
 
 ## Configuration
 
@@ -113,12 +115,36 @@ Health check endpoint.
 4. Configure environment files:
    - Copy `general.env.example` to `general.env`
    - Copy `jwt.env.example` to `jwt.env` (if using public mode)
+   - Copy `s3.env.example` to `s3.env` (if using private mode)
    - Update configuration values
 
 5. Run the server:
    ```bash
+   # Basic usage (uses PORT from environment or defaults to 8000)
+   uvicorn main:app --reload
+
+   # Specify port directly
+   uvicorn main:app --port 8849 --reload
+
+   # Production with SSL
    uvicorn main:app --host 127.0.0.1 --port 8443 --ssl-keyfile certs/key.pem --ssl-certfile certs/cert.pem
    ```
+
+## Operating Modes
+
+### Public Mode
+In public mode, the service generates and validates JWT tokens for URLs based on the configured endpoints in `jwt.env`.
+**WARNING**: Make sure to remove s3.env in public mode.
+
+### Private Mode (S3 Proxy)
+In private mode, the service acts as a proxy for S3 buckets. It transforms incoming URLs into local proxy URLs that handle S3 authentication internally. No JWT tokens are generated or required in this mode.
+**WARNING**: Make sure to remove jwt.env in private mode.
+
+Example transformation:
+```
+Input:  https://bucket.example.com/path/to/file.jpg
+Output: http://localhost:8000/proxy/path/to/file.jpg?bucket=bucket
+```
 
 ## Notes
 
@@ -126,3 +152,4 @@ Health check endpoint.
 - File paths are automatically extracted from URLs
 - Tokens are bound to specific files and cannot be reused for other files
 - IP validation is optional and can be enabled per endpoint
+- Server port can be configured via PORT environment variable or --port argument
