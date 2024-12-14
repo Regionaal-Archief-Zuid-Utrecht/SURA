@@ -1,10 +1,10 @@
 # SURA - Secure URL Return API
 
-A FastAPI-based service that provides secure URL manipulation, for example through JWT tokens. The service can operate in both public and private modes, with token generation available in public mode.
+A FastAPI-based service that provides secure URL manipulation. The service can operate in both public and private modes.
 
 ## Features
 
-- **Dual Mode Operation**: Run in either public (token generation) or private mode
+- **Dual Mode Operation**: Run in either public (token generation) or private mode (S3 proxy)
 - **JWT Token Generation**: Create secure tokens for authorized URL access
 - **File-Bound Tokens**: Each token is bound to a specific file path for enhanced security
 - **Configurable Endpoints**: Support for multiple endpoints with different configurations
@@ -32,6 +32,17 @@ A FastAPI-based service that provides secure URL manipulation, for example throu
    ENDPOINT_DURATION="1h"  # Optional, defaults to GENERAL_DURATION
    ENDPOINT_NBF="0"       # Optional Not Before offset in seconds
    ENDPOINT_IP="FALSE"    # Optional IP validation
+   ```
+
+3. `s3.env`:
+   ```
+   AWS_ACCESS_KEY_ID=your-access-key-id
+   AWS_SECRET_ACCESS_KEY=your-secret-access-key
+   AWS_REGION=eu-west-1
+   S3_BUCKET=your-bucket-name
+   S3_ENDPOINT_URL=https://s3.eu-west-1.amazonaws.com  # You can use a custom S3 endpoint
+   URL_EXPIRATION=3600  # Pre-signed URL expiration in seconds
+   CDN_TO_S3_PREFIX=/  # Optional: if S3 keys have a different prefix than CDN paths
    ```
 
 ### Configuration Parameters
@@ -80,13 +91,14 @@ Health check endpoint.
 **Response:**
 ```json
 {
-    "status": "ok"
+    "status": "ok",
+    "mode": "public" // or "private"
 }
 ```
 
 ## Security Features
 
-- HTTPS-only connections
+- Support for HTTPS-only connections
 - File-specific token binding
 - Optional IP validation
 - Configurable token expiration

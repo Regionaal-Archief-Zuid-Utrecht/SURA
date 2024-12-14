@@ -44,16 +44,6 @@ class S3Config:
 def cdn_url_to_s3_key(url: str, config: S3Config) -> Optional[str]:
     """Convert a CDN URL to an S3 key"""
     parsed = urlparse(url)
-    
-    # Check if this is a direct S3 URL (e.g. bucket.opslag.razu.nl/path)
-    if parsed.netloc.endswith('.opslag.razu.nl'):
-        # For direct S3 URLs, just use the path
-        return parsed.path.lstrip('/')
-    
-    # Otherwise, handle CDN URL
-    if not url.startswith(config.cdn_base_url):
-        return None
-        
     # Remove the base URL to get the path
     path = parsed.path.lstrip('/')
     
