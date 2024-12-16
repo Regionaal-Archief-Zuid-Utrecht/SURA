@@ -28,12 +28,11 @@ A FastAPI-based service that provides simple URL manipulation. The service can o
    ```
    GENERAL_DURATION="1h"  # Default token duration
 
-   # Endpoint configuration
-   ENDPOINT_BASEURL="https://example.com"
-   ENDPOINT_JWTSECRET="your-secret-here"
-   ENDPOINT_DURATION="1h"  # Optional, defaults to GENERAL_DURATION
-   ENDPOINT_NBF="0"       # Optional Not Before offset in seconds
-   ENDPOINT_IP="FALSE"    # Optional IP validation
+   ONE_BASEURL="https://example.com"
+   ONE_JWTSECRET="generate-a-secure-secret-and-place-it-here"
+   ONE_DURATION="1h"    # Optional: Token validity duration (1h = 1 hour, 30m = 30 minutes, 1d = 1 day)
+   ONE_NBF="0"         # Optional: Not Before offset in seconds (0 = token valid immediately)
+   ONE_IP="FALSE"      # Optional: Whether to include IP validation in token
    ```
 
 3. `s3.env`:
