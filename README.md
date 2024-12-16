@@ -1,17 +1,19 @@
-# SURA - Secure URL Return API
+# SURA - Simple URL Return API
 
-A FastAPI-based service that provides secure URL manipulation. The service can operate in both public and private modes.
+A FastAPI-based service that provides simple URL manipulation. The service can operate in both public and private modes.
 
 ## Features
 
 - **Dual Mode Operation**: Run in either public (token generation) or private mode (S3 proxy)
+
 - **JWT Token Generation**: Create secure tokens for authorized URL access
-- **File-Bound Tokens**: Each token is bound to a specific file path for enhanced security
-- **Configurable Endpoints**: Support for multiple endpoints with different configurations
-- **Flexible Token Duration**: Configurable token expiration times
-- **Optional IP Validation**: Can include IP validation in tokens if required
+   - **File-Bound Tokens**: Each token is bound to a specific file path for enhanced security
+   - **Configurable Endpoints**: Support for multiple endpoints with different configurations
+   - **Flexible Token Duration**: Configurable token expiration times
+   - **Optional IP Validation**: Can include IP validation in tokens if required
+
 - **S3 Proxy Mode**: In private mode, can proxy requests to S3 buckets
-- **Configurable Port**: Server port can be configured via command line
+
 
 ## Configuration
 
