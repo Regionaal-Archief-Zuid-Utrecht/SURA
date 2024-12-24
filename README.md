@@ -143,6 +143,12 @@ Health check endpoint.
    uvicorn main:app --host 127.0.0.1 --port 8443 --ssl-keyfile certs/key.pem --ssl-certfile certs/cert.pem
    ```
 
+   Alternatively, build and run the Docker image:
+   ```bash
+   docker build -t sura .
+   docker run -p 8000:8000 sura
+   ```
+
 ## Operating Modes
 
 ### Public Mode
