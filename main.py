@@ -1,7 +1,9 @@
-from fastapi import FastAPI, HTTPException, Request, Query, Form
+from fastapi import FastAPI, Request, HTTPException, Query, Form, Response, APIRouter
+from elastic_proxy_utils import forward_to_elastic
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 from jwt_handler import generate_token
 from ip_utils import get_client_ip
@@ -11,11 +13,22 @@ from config import config
 import httpx
 from urllib.parse import urlparse
 import os
+import warnings
 
 # Get server port from environment or use default
 SERVER_PORT = int(os.getenv("PORT", "8000"))
 
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Be specific about allowed origins
+    allow_credentials=True,
+    allow_methods=["POST", "OPTIONS"],  # Only allow methods we actually support
+    allow_headers=["Content-Type", "Authorization"],  # Be specific about allowed headers
+    max_age=3600  # Cache preflight response for 1 hour
+)
 
 # Add middleware to only allow localhost requests
 app.add_middleware(
@@ -36,10 +49,24 @@ if os.getenv("ENVIRONMENT", "development") == "production":
         response = await call_next(request)
         return response
 
+@app.middleware("http")
+async def cors_middleware(request: Request, call_next):
+    if request.method == "OPTIONS":
+        response = Response()
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+        return response
+    else:
+        response = await call_next(request)
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+        return response
+
 @app.get("/health")
 async def health():
-    return {"status": "ok",
-            "mode": config.mode}
+    return {"status": "ok", "mode": config.MODE}
 
 @app.post("/process-url")
 async def process_url(
@@ -136,3 +163,20 @@ async def proxy_content(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/_search")
+async def search(request: Request):
+    request_body = await request.json()
+    response = request_body
+    # response = forward_to_elastic(request_body)
+
+    if response is None:
+        raise HTTPException(status_code=500, detail="Error forwarding request to Elastic")
+    return response
+
+if __name__ == "__main__":
+    import uvicorn
+    
+    uvicorn.run(app, 
+                host="0.0.0.0", 
+                port=SERVER_PORT)
