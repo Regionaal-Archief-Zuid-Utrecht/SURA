@@ -29,7 +29,8 @@ def forward_to_elastic(request_body: Dict[str, Any]) -> Optional[Dict[str, Any]]
         'Authorization': f'ApiKey {api_key}',
         'Content-Type': 'application/json'
     }
-    warnings.warn(f'Request body: {request_body}')
+    # warnings.warn(f'Request body: {request_body}')
+    print(f"Request was: {request_body}")
     try:
         # Make the request to Elastic
         response = requests.post(
@@ -40,7 +41,7 @@ def forward_to_elastic(request_body: Dict[str, Any]) -> Optional[Dict[str, Any]]
         
         # Raise an exception for bad status codes
         response.raise_for_status()
-        warnings.warn(f'Response: {response.json()}')
+        #warnings.warn(f'Response: {response.json()}')
         # Return the JSON response
         return response.json()
         

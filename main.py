@@ -167,8 +167,8 @@ async def proxy_content(
 @app.post("/_search")
 async def search(request: Request):
     request_body = await request.json()
-    response = request_body
-    # response = forward_to_elastic(request_body)
+    #response = request_body
+    response = forward_to_elastic(request_body)
 
     if response is None:
         raise HTTPException(status_code=500, detail="Error forwarding request to Elastic")
