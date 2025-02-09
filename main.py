@@ -8,7 +8,7 @@ from typing import Optional
 from jwt_handler import generate_token
 from ip_utils import get_client_ip
 from url_utils import process_url_with_token
-from s3_utils import generate_presigned_url, s3_config
+from s3_utils import generate_presigned_url, get_s3_config
 from config import config
 import httpx
 from urllib.parse import urlparse
@@ -35,7 +35,6 @@ app.add_middleware(
     TrustedHostMiddleware,
     allowed_hosts=["localhost", "127.0.0.1"]
 )
-
 # Only force HTTPS in production
 if os.getenv("ENVIRONMENT", "development") == "production":
     # Force HTTPS
@@ -130,6 +129,7 @@ async def proxy_content(
         original_url = f"https://{bucket}.opslag.razu.nl/{filename}"
         
         # Override the bucket for this request
+        s3_config = get_s3_config()
         s3_config.bucket = bucket
         
         # Generate pre-signed URL
@@ -166,6 +166,8 @@ async def proxy_content(
 
 @app.post("/_search")
 async def search(request: Request):
+    if not config.elastic_loaded:
+        raise HTTPException(status_code=500, detail="Elastic configuration not loaded")
     request_body = await request.json()
     #response = request_body
     response = forward_to_elastic(request_body)

@@ -7,9 +7,7 @@ from dotenv import load_dotenv
 
 class S3Config:
     def __init__(self):
-        # Load S3 configuration
-        load_dotenv("s3.env")
-        
+           
         # AWS credentials and region
         self.aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
         self.aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
@@ -78,5 +76,8 @@ def generate_presigned_url(url: str, config: S3Config) -> Optional[str]:
         print(f"Error generating presigned URL: {str(e)}")
         return None
 
-# Create a global config instance
-s3_config = S3Config()
+def get_s3_config():
+    from config import config
+    if config.mode != 'public':
+        s3_config = S3Config()
+        return s3_config
