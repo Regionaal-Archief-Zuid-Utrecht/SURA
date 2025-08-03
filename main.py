@@ -176,6 +176,32 @@ async def search(request: Request):
         raise HTTPException(status_code=500, detail="Error forwarding request to Elastic")
     return response
 
+# new forwarding endpoint that only injects CORS-headers and does not further alterations to the URLs given. This is just meant for the frontend to fetch public resources that don't provide proper CORS-headers themselves.
+
+
+
+
+@app.get("/cors-proxy")
+async def cors_proxy(url: str, request: Request):
+    # Only allow certain domains
+    allowed_domains = ["razu.nl", "huizenenmenseninwijk.nl"]
+    parsed = urlparse(url)
+    if not any(domain in parsed.netloc for domain in allowed_domains):
+        raise HTTPException(status_code=403, detail="Domain not allowed")
+    try:
+        async with httpx.AsyncClient() as client:
+            proxied_response = await client.get(url)
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Upstream error: {e}")
+    # Build response with CORS headers
+    headers = dict(proxied_response.headers)
+    headers["Access-Control-Allow-Origin"] = "*"
+    # Remove hop-by-hop headers that FastAPI/Starlette will handle
+    headers.pop("content-encoding", None)
+    headers.pop("transfer-encoding", None)
+    headers.pop("connection", None)
+    return Response(content=proxied_response.content, status_code=proxied_response.status_code, headers=headers)
+
 if __name__ == "__main__":
     import uvicorn
     
