@@ -34,7 +34,7 @@ app.add_middleware(
 # Add middleware to only allow localhost requests
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["localhost", "127.0.0.1"]
+    allowed_hosts=["localhost", "127.0.0.1", "huizenenmenseninwijk.nl", "razu.nl"]
 )
 # Only force HTTPS in production
 if os.getenv("ENVIRONMENT", "development") == "production":
