@@ -18,17 +18,20 @@ class Config:
     def __init__(self):
         # Load all environment files
         load_dotenv("general.env")
-        
-        
+              
         # Get mode from general.env
         self.mode = os.getenv("MODE", "private")
-        if self.mode == "private" and Path("jwt.env").exists():
-            warnings.warn("SECURITY WARNING: JWT endpoints are configured, but MODE is set to 'private'. This is not secure. Remove 'jwt.env' file or set MODE to 'public' to enable JWT endpoints.")
-        
+        if self.mode == "private":
+            if Path("jwt.env").exists():
+                warnings.warn("SECURITY WARNING: JWT endpoints are configured, but MODE is set to 'private'. This is not secure. Remove 'jwt.env' file or set MODE to 'public' to enable JWT endpoints. Will not load jwt.env")
+            if not Path("s3.env").exists():
+                raise ValueError("S3 endpoints are not configured. Add the 's3.env' file or Set MODE to 'public' to disable S3 endpoints.")
+
+            load_dotenv("s3.env")
         # Load JWT configuration
         if self.mode == "public":
             if Path("s3.env").exists():
-                warnings.warn("SECURITY WARNING: S3 endpoints are configured, but MODE is set to 'public'. This is not secure. Remove 's3.env' file or set MODE to 'private' to enable S3 endpoints.")
+                warnings.warn("SECURITY WARNING: S3 endpoints are configured, but MODE is set to 'public'. This is not secure. Remove 's3.env' file or set MODE to 'private' to enable S3 endpoints. Will not load s3.env")
             if not Path("jwt.env").exists():
                 raise ValueError("JWT endpoints are not configured. Add the 'jwt.env' file or Set MODE to 'private' to disable JWT endpoints.")
 
@@ -52,6 +55,13 @@ class Config:
                 warnings.warn("No JWT endpoints configured. The service will not be able to handle any URLs.")
             else:
                 self.general_duration = env_vars.get("GENERAL_DURATION", "0")
+        
+        if Path("elastic.env").exists():
+            load_dotenv("elastic.env")
+            self.elastic_loaded = True
+        else:
+            warnings.warn("Elastic endpoints are not configured. Add the 'elastic.env' file to enable Elastic Forwarding.")
+            self.elastic_loaded = False
         
 
     def get_endpoint_config(self, url: str) -> Optional[JWTEndpointConfig]:

@@ -165,6 +165,10 @@ Input:  https://bucket.example.com/path/to/file.jpg
 Output: http://localhost:8000/proxy/path/to/file.jpg?bucket=bucket
 ```
 
+### Elastic forward
+This is a sub-mode that works in both main-modes. If you add an elastic.env-file that is properly configured (see the .example), you can use the _search-endpoint to forward an elastic request to an endpoint of your choosing.
+The endpoint is always exposed, but will return a 500 when elastic.env is not loaded.
+
 ## Notes
 
 - In private mode, JWT configuration is ignored for security
@@ -172,3 +176,4 @@ Output: http://localhost:8000/proxy/path/to/file.jpg?bucket=bucket
 - Tokens are bound to specific files and cannot be reused for other files
 - IP validation is optional and can be enabled per endpoint
 - Server port can be configured via PORT environment variable or --port argument
+
