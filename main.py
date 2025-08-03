@@ -17,6 +17,7 @@ import warnings
 
 # Get server port from environment or use default
 SERVER_PORT = int(os.getenv("PORT", "8000"))
+ALLOWED_PROXY_DOMAINS = os.getenv("ALLOWED_PROXY_DOMAINS").split(",")
 
 app = FastAPI()
 
@@ -184,9 +185,8 @@ async def search(request: Request):
 @app.get("/cors-proxy")
 async def cors_proxy(url: str, request: Request):
     # Only allow certain domains
-    allowed_domains = ["razu.nl", "huizenenmenseninwijk.nl"]
     parsed = urlparse(url)
-    if not any(domain in parsed.netloc for domain in allowed_domains):
+    if not any(domain in parsed.netloc for domain in ALLOWED_PROXY_DOMAINS):
         raise HTTPException(status_code=403, detail="Domain not allowed")
     try:
         async with httpx.AsyncClient() as client:
