@@ -22,6 +22,7 @@ A FastAPI-based service that provides simple URL manipulation. The service can o
 1. `general.env`:
    ```
    MODE="public"  # or "private"
+   ALLOWED_HOSTS=localhost,127.0.0.1,linuc.local
    ```
 
 2. `jwt.env`:
@@ -49,6 +50,7 @@ A FastAPI-based service that provides simple URL manipulation. The service can o
 ### Configuration Parameters
 
 - `MODE`: Sets the operation mode (public/private)
+- `ALLOWED_HOSTS`: Comma-separated hostnames accepted by the API (defaults to `localhost,127.0.0.1`)
 - `*_BASEURL`: Base URL for the endpoint
 - `*_JWTSECRET`: Secret key for JWT token signing
 - `*_DURATION`: Token validity duration (e.g., "1h", "30m", "1d")

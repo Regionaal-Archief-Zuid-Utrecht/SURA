@@ -30,10 +30,10 @@ app.add_middleware(
     max_age=3600  # Cache preflight response for 1 hour
 )
 
-# Add middleware to only allow localhost requests
+# Add middleware to only allow configured hosts
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["localhost", "127.0.0.1"]
+    allowed_hosts=config.allowed_hosts
 )
 # Only force HTTPS in production
 if os.getenv("ENVIRONMENT", "development") == "production":
@@ -65,7 +65,7 @@ async def cors_middleware(request: Request, call_next):
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "mode": config.MODE}
+    return {"status": "ok", "mode": config.mode}
 
 @app.post("/process-url")
 async def process_url(

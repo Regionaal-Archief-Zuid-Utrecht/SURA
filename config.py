@@ -6,6 +6,14 @@ import re
 from pathlib import Path
 import warnings
 
+DEFAULT_ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+
+
+def parse_allowed_hosts(value: Optional[str]) -> list[str]:
+    allowed_hosts = [host.strip() for host in value.split(",") if host.strip()] if value else []
+    return allowed_hosts or DEFAULT_ALLOWED_HOSTS.copy()
+
+
 @dataclass
 class JWTEndpointConfig:
     base_url: str
@@ -21,6 +29,7 @@ class Config:
               
         # Get mode from general.env
         self.mode = os.getenv("MODE", "private")
+        self.allowed_hosts = parse_allowed_hosts(os.getenv("ALLOWED_HOSTS"))
         if self.mode == "private":
             if Path("jwt.env").exists():
                 warnings.warn("SECURITY WARNING: JWT endpoints are configured, but MODE is set to 'private'. This is not secure. Remove 'jwt.env' file or set MODE to 'public' to enable JWT endpoints. Will not load jwt.env")
@@ -49,8 +58,8 @@ class Config:
                         jwt_secret=env_vars[f"{prefix}_JWTSECRET"],
                         duration=env_vars.get(f"{prefix}_DURATION", "0"),
                         nbf=env_vars.get(f"{prefix}_NBF", "0"),
-                    use_ip=env_vars.get(f"{prefix}_IP", "FALSE").upper() == "TRUE"
-                )
+                        use_ip=env_vars.get(f"{prefix}_IP", "FALSE").upper() == "TRUE"
+                    )
             if not self.endpoints:
                 warnings.warn("No JWT endpoints configured. The service will not be able to handle any URLs.")
             else:
